@@ -41,7 +41,7 @@
                                 var previousfield=revisions[0].fields["System.State"];
                                 var previousdate=new Date(revisions[0].fields["System.ChangedDate"])
                                 console.log(previousfield + ";"+previousdate);
-                                var witTitle=revisions[0].fields["System.Title"];
+                                var witTitle=revisions[revisions.length-1].fields["System.Title"];
                                 var witId=revisions[0].id;
                                 $.each(revisions,function(irev,valrev){
                                     if(previousfield!==valrev.fields["System.State"]){
