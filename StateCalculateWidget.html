@@ -8,20 +8,6 @@
                 explicitNotifyLoaded: true,
                 usePlatformStyles: true
             });
-        //     VSS.require("TFS/Dashboards/WidgetHelpers", function (WidgetHelpers) {
-        //     WidgetHelpers.IncludeWidgetStyles();
-        //     VSS.register("StateCalculateWidget", function () {                
-        //         return {
-        //             load: function (widgetSettings) {
-        //                 var $title = $('h2.title');
-        //                 $title.text('Hello World');
-
-        //                 return WidgetHelpers.WidgetStatusHelper.Success();
-        //             }
-        //         }
-        //     });
-        //     VSS.notifyLoadSucceeded();
-        // });
        
             VSS.require(["TFS/Dashboards/WidgetHelpers","TFS/WorkItemTracking/RestClient"], function (WidgetHelpers,TFS_Wit_WebApi) {
               
