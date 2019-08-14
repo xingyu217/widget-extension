@@ -1,0 +1,74 @@
+{       
+    "manifestVersion": 1,
+        "id": "vsts-extensions-myStatecalExtensions",
+        "version": "1.0.54",
+        "name": "State calculate Widgets",
+        "description": "State calculate Widgets",
+        "publisher": "starain",
+        "categories": ["Azure Boards"],
+        "targets": [
+            {
+                "id": "Microsoft.VisualStudio.Services"
+            }
+        ],
+        "scopes":[
+            "vso.work"
+        ],
+        "icons": {
+            "default": "img/logo.png"
+        },
+        "contributions": [  
+            {
+                "id": "StateCalculateWidget",
+                "type": "ms.vss-dashboards-web.widget",
+                "targets": [
+                    "ms.vss-dashboards-web.widget-catalog",
+                    "starain.vsts-extensions-myStatecalExtensions.StateCalculateWidget.Configuration"
+                ],
+                "properties": {
+                    "name": "State calculate Widget",
+                    "description": "State calculate Widget",
+                    "catalogIconUrl": "img/iconProperty.png",
+                    "previewImageUrl": "img/iconProperty.png",                            
+                    "uri": "StateCalculateWidget.html",
+                    "supportedSizes": [
+                         {
+                                "rowSpan": 4,
+                                "columnSpan": 4
+                            }
+                        ],
+                    "supportedScopes": ["project_team"]
+                }
+            },
+            {
+                "id": "StateCalculateWidget.Configuration",
+                "type": "ms.vss-dashboards-web.widget-configuration",
+                "targets": [ "ms.vss-dashboards-web.widget-configuration" ],
+                "properties": {
+                    "name": "StateCalculateWidget Configuration",
+                    "description": "Configures StateCalculateWidget",
+                    "uri": "calconfiguration.html"
+                }
+            }
+            
+        ],
+	"files": [
+        {
+		"path": "node_modules/vss-web-extension-sdk/lib",
+        "addressable": true,
+        "packagePath": "lib"
+        },
+        {
+            "path": "StateCalculateWidget.html", "addressable": true
+        },
+        {
+            "path": "scripts", "addressable": true
+        },
+        {
+            "path": "img", "addressable": true
+        },
+        {
+            "path": "calconfiguration.html", "addressable": true
+        }
+    ]
+}

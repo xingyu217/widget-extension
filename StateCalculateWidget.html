@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+    <head>          
+        <!-- <script src="scripts/jquery-3.2.1.js" type="text/javascript"></script> -->
+        <script src="lib/VSS.SDK.min.js"></script>
+        <script type="text/javascript">
+            VSS.init({                        
+                explicitNotifyLoaded: true,
+                usePlatformStyles: true
+            });
+        //     VSS.require("TFS/Dashboards/WidgetHelpers", function (WidgetHelpers) {
+        //     WidgetHelpers.IncludeWidgetStyles();
+        //     VSS.register("StateCalculateWidget", function () {                
+        //         return {
+        //             load: function (widgetSettings) {
+        //                 var $title = $('h2.title');
+        //                 $title.text('Hello World');
+
+        //                 return WidgetHelpers.WidgetStatusHelper.Success();
+        //             }
+        //         }
+        //     });
+        //     VSS.notifyLoadSucceeded();
+        // });
+       
+            VSS.require(["TFS/Dashboards/WidgetHelpers","TFS/WorkItemTracking/RestClient"], function (WidgetHelpers,TFS_Wit_WebApi) {
+              
+                WidgetHelpers.IncludeWidgetStyles();
+                
+                VSS.register("StateCalculateWidget", function () {   
+                    var projectId = VSS.getWebContext().project.id;
+                    console.log(projectId)
+                    var getQueryInfo = function (widgetSettings) {
+                        
+                        var settings = JSON.parse(widgetSettings.customSettings.data);
+                    if (!settings || !settings.queryPath) {
+                        var $container = $('#query-info-container');
+                        $container.empty();
+                        $container.text("Sorry nothing to show, please configure a query path");
+                        return WidgetHelpers.WidgetStatusHelper.Success();
+                    }
+                var witClient=TFS_Wit_WebApi.getClient();
+                    //console.log(settings);
+                  return witClient.queryById(settings.queryPath)
+                    .then(function(queryResult){
+                        var witIds=[];
+                        var $revisionContainer = $('#wit-revision-result');
+                        var $revisionlist = $('<ul>');
+                        $.each(queryResult.workItems,function(iwr,valiwr){
+                            witIds.push(valiwr.id);
+                           
+                            witClient.getRevisions(valiwr.id)
+                            .then(function(revisions){
+                                console.log(revisions);
+                                var previousfield=revisions[0].fields["System.State"];
+                                var previousdate=new Date(revisions[0].fields["System.ChangedDate"])
+                                console.log(previousfield + ";"+previousdate);
+                                var witTitle=revisions[0].fields["System.Title"];
+                                var witId=revisions[0].id;
+                                $.each(revisions,function(irev,valrev){
+                                    if(previousfield!==valrev.fields["System.State"]){
+                                        console.log(valrev.fields["System.State"] + ";;;;;;;"+previousdate+";;;;;"+valrev.fields["System.ChangedDate"]);
+                                       var dif= (new Date(valrev.fields["System.ChangedDate"])-previousdate)/(60*60*1000)
+                                       console.log(dif);
+                                        $revisionlist.append($('<li>').text("work item: "+witTitle+";  ID:  "+witId+".  "+previousfield+ "  =>  "+valrev.fields["System.State"]+"; Time dif:  "+ Math.floor(dif) + "hours"));
+                                        previousfield= valrev.fields["System.State"];
+                                        previousdate=new Date(valrev.fields["System.ChangedDate"]);
+                                    }
+                                   
+                                });
+                            },
+                            function(error){
+                                return WidgetHelpers.WidgetStatusHelper.Failure(error.message);
+                                }
+                            );
+                           
+                        });
+                        $revisionContainer.empty();
+                        $revisionContainer.append($revisionlist);
+                        console.log(witIds);
+                        //console.log(queryResult);
+                        return WidgetHelpers.WidgetStatusHelper.Success();
+                    },
+                    function(error){
+                        return WidgetHelpers.WidgetStatusHelper.Failure(error.message);
+                    });
+                // Get a WIT client to make REST calls to Azure DevOps Services
+                return TFS_Wit_WebApi.getClient().getQuery(projectId, settings.queryPath)
+                    .then(function (query) {
+                        // Do something with the query
+                        var $list = $('<ul>');
+                                $list.append($('<li>').text("Query ID: " + query.id));
+                                $list.append($('<li>').text("Query Name: " + query.name));
+                                $list.append($('<li>').text("Created By: " + (query.createdBy ? query.createdBy.displayName: "<unknown>") ));
+
+                                // Append the list to the query-info-container
+                                var $container = $('#query-info-container');
+                                $container.empty();
+                                $container.append($list);
+
+                        return WidgetHelpers.WidgetStatusHelper.Success();
+                    }, function (error) {                            
+                        return WidgetHelpers.WidgetStatusHelper.Failure(error.message);
+                    });
+            }
+                   
+                    return {
+                        load: function (widgetSettings) {
+                            var $title = $('h2.title');
+                            $title.text('Hello World');
+                            return getQueryInfo(widgetSettings);
+                            //return WidgetHelpers.WidgetStatusHelper.Success();
+                        },
+                        reload: function (widgetSettings) {
+                            return getQueryInfo(widgetSettings);
+                         }
+                    }
+                });
+                VSS.notifyLoadSucceeded();
+            });
+        </script>            
+    </head>
+    <body>
+        <div class="widget">
+            <h2 class="title"></h2>
+            <div id="query-info-container"></div>
+            <div id="wit-revision-result"></div>
+        </div>
+    </body>
+</html>
